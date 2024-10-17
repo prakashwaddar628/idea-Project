@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const Dashboard = () => {
-  const [items, setItems] = useState([
-    { id: 1, name: "buy tomatoes", completed: false },
-    { id: 2, name: "Pick kids from school", completed: false },
-    { id: 3, name: "wash dishes", completed: false },
-  ]);
+  const [items, setItems] = useState(()=>{
+    const storedItems = localStorage.getItem('todoItems');
+    return storedItems ? JSON.parse(storedItems) : []
+  });
 
   const toggleChecked = (id) => {
     setItems(
@@ -14,6 +13,21 @@ const Dashboard = () => {
       )
     );
   };
+
+  useEffect(() => {
+    if(items.length>0){
+        localStorage.setItem("todoItems",JSON.stringify(items))
+    }
+  }, [items])
+  
+
+  const [itemvalue, setitemvalue] = useState("")
+  const addItems = ()=>{
+    if (itemvalue.trim()){
+        setItems([...items, {id: items.length + 1, name: itemvalue, completed:false }]);
+        setitemvalue("")
+    }
+  }
 
   const completedCount = items.filter((item) => item.completed).length;
   const uncompletedCount = items.length - completedCount;
@@ -30,8 +44,10 @@ const Dashboard = () => {
               className="outline-none bg-cyan-400 rounded-sm w-52 h-7"
               type="text"
               placeholder="Enter your task"
+              value={itemvalue}
+              onChange={(e)=>{setitemvalue(e.target.value)}}
             />
-            <button className="bg-green-500 px-2 text-white text-sm">
+            <button className="bg-green-500 px-2 text-white text-sm" onClick={addItems}>
               Add
             </button>
           </div>
